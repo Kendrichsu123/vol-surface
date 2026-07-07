@@ -2,6 +2,8 @@ import yfinance as yf
 import pandas as pd
 from main import implied_vol
 from datetime import datetime
+import matplotlib.pyplot as plt
+
 
 TICKER = "SPY"
 
@@ -90,3 +92,18 @@ print(otm_puts[["strike", "mid", "iv", "impliedVolatility"]].head(10).to_string(
 
 print(f"Calls with valid IV: {len(otm_calls)}")
 print(f"Puts with valid IV:  {len(otm_puts)}")
+
+#Plotting smile
+put_wing  = otm_puts[["strike", "iv"]]
+call_wing = otm_calls[["strike", "iv"]]
+smile = pd.concat([put_wing, call_wing])
+smile = smile.sort_values("strike")
+plt.figure(figsize=(10, 6))
+plt.plot(smile["strike"], smile["iv"], marker="o", markersize=3, linewidth=1)
+plt.axvline(spot, color="red", linestyle="--", alpha=0.6, label=f"Spot = {spot:.2f}")
+plt.xlabel("Strike")
+plt.ylabel("Implied Volatility")
+plt.title(f"SPY Volatility Smile — expiry {expiry}")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.show()
