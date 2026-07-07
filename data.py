@@ -40,3 +40,13 @@ puts["mid"] = (puts["bid"] + puts["ask"]) / 2
 
 near_calls = calls[(calls["strike"] > 730) & (calls["strike"] < 770)]
 print(near_calls[["strike", "bid", "ask", "mid"]])
+
+otm_calls = calls[(calls["strike"] > spot) & (calls["bid"] > 0) 
+                  & ((calls["ask"] - calls["bid"]) / calls["mid"] < 0.5) & (calls["openInterest"] > 0)]
+otm_puts = puts[(puts["strike"] < spot) & (puts["bid"] > 0) 
+                & ((puts["ask"] - puts["bid"]) / puts["mid"] < 0.5) & (puts["openInterest"] > 0)]
+
+print(f"Calls: {len(calls)} -> {len(otm_calls)} after filtering")
+print(f"Puts:  {len(puts)} -> {len(otm_puts)} after filtering")
+
+
