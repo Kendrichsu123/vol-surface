@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import norm
 from scipy.optimize import brentq
 
+
 #Black-Scholes Price of a European Option
 #S     : spot price of the underlying
 #K     : strike
@@ -23,7 +24,7 @@ def bs_price(S, K, T, r, sigma, q=0.0, cp="call"):
 def implied_vol(price, S, K, T, r, q=0.0, cp="call"):
     def f(sigma):
         return bs_price(S, K, T, r, sigma, q, cp) - price
-    return brentq(f,1e-6, 5.0)
+    return brentq(f, 1e-6, 5.0) 
 
 
 
