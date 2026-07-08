@@ -85,15 +85,10 @@ surface.to_csv("surface.csv", index=False)
 plt.show()
 plt.close()
 
+surface = surface[(surface["log_moneyness"] > -0.3) & (surface["log_moneyness"] < 0.15)]
 surface["m_bin"] = pd.cut(surface["log_moneyness"], bins=30)
-
-# 2. Also round T so near-identical expiries group cleanly as rows.
-#    (Each expiry already has a distinct T, so this is mostly cosmetic,
-#     but rounding avoids floating-point near-duplicates.)
 surface["T_round"] = surface["T"].round(3)
 
-# 3. Pivot into a grid: rows = T, columns = moneyness bucket, values = IV.
-#    pivot_table averages IV when multiple points share a cell.
 grid = surface.pivot_table(
     index="T_round",
     columns="m_bin",
@@ -102,7 +97,6 @@ grid = surface.pivot_table(
     observed=False,
 )
 
-# 4. Plot the grid as a heatmap.
 plt.figure(figsize=(12, 7))
 plt.imshow(
     grid.values,
@@ -116,3 +110,4 @@ plt.ylabel("Time to expiry index (near → far)")
 plt.title("SPY Implied Volatility Surface — heatmap")
 plt.savefig("heatmap.png", dpi=150, bbox_inches="tight")
 plt.show()
+plt.close()
