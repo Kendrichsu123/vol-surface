@@ -156,9 +156,9 @@ A missed day is OK; small gaps are fine.
 CRITICAL DATES (do not miss):
 
 
-July 28 — last snapshot BEFORE FOMC (pre-event baseline).
-July 29-30 — FOMC meeting.
-July 31 — first snapshot AFTER announcement (the crush).
+July 27 — last snapshot BEFORE FOMC (pre-event baseline).
+July 28-29 — FOMC meeting.
+July 30 — first snapshot AFTER announcement (the crush).
 Keep collecting a few days after to see the term structure normalize.
 
 

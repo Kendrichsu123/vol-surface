@@ -101,7 +101,7 @@ if __name__ == "__main__":
     ax.set_ylabel("Time to expiry (years)")
     ax.set_zlabel("Implied volatility")
     ax.set_title("SPY Implied Volatility Surface")
-    plt.savefig("surface.png", dpi=150, bbox_inches="tight")
+    plt.savefig("charts/surface.png", dpi=150, bbox_inches="tight")
     plt.show()
     plt.close()
 
@@ -121,6 +121,6 @@ if __name__ == "__main__":
     plt.xlabel("Log-moneyness bucket (low strike → high strike)")
     plt.ylabel("Time to expiry index (near → far)")
     plt.title("SPY Implied Volatility Surface — heatmap")
-    plt.savefig("heatmap.png", dpi=150, bbox_inches="tight")
+    plt.savefig("charts/heatmap.png", dpi=150, bbox_inches="tight")
     plt.show()
     plt.close()
