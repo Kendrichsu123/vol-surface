@@ -74,9 +74,6 @@ during market hours (tight spreads, live quotes) vs. the messier close bell.
 
 Things I learned / bugs I hit
 
-
-^ is XOR in Python, not power — use **. (BS d1 formula.)
-VS Code runs the file ON DISK — must save (Cmd+S) before running.
 brentq needs f(a), f(b) opposite signs; the "different signs" error means a
 bad quote with no valid IV (price violates arbitrage bounds) -> filter it out.
 So that error is really brentq doing data-quality checking for me.
@@ -162,7 +159,7 @@ July 30 — first snapshot AFTER announcement (the crush).
 Keep collecting a few days after to see the term structure normalize.
 
 
-Collection started: 2026-07-08.
+Collection started: 2026-07-09.
 
 
 TODO
@@ -191,4 +188,7 @@ Validated my IV against an independent source to ~1 vol point.
 Read the surface: equity skew (crash premium), skew flattening with maturity,
 term structure.
 Studying FOMC vol crush — a real thing desks position around.
-Hardest bug: the silent put-mid copy-paste error, caught by benchmarking.
+
+
+
+Error Fix on 7/15 at 3:45pm. Lost wifi connection so lost virtual environment; surface_2026-07-15.csv was not created at 3pm and instead created at 3:45pm
