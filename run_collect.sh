@@ -14,10 +14,8 @@ cd "$REPO" || exit 1
 
 LABEL="${1:-}"
 if [ -n "$LABEL" ]; then
-    ARGS=(--label "$LABEL")
     SUFFIX="_$LABEL"
 else
-    ARGS=()
     SUFFIX=""
 fi
 
@@ -28,8 +26,20 @@ EXPECTED="data/surface_${DATE}${SUFFIX}.csv"
     echo "=== $(date) : starting collection ${LABEL:-daily} ==="
 } >> "$LOG"
 
-if ! "$PY" collect.py "${ARGS[@]}" >> "$LOG" 2>&1; then
-    echo "$(date): collect.py FAILED (see $LOG) — nothing committed" | tee -a "$LOG"
+# Deliberately NOT an array. macOS ships bash 3.2, where expanding an empty
+# array ("${ARGS[@]}" with ARGS=()) under `set -u` aborts with "unbound
+# variable". The no-label path is exactly what the daily 3pm job uses, so an
+# array here would break the unlabeled run while the labeled one worked.
+if [ -n "$LABEL" ]; then
+    "$PY" collect.py --label "$LABEL" >> "$LOG" 2>&1
+    RC=$?
+else
+    "$PY" collect.py >> "$LOG" 2>&1
+    RC=$?
+fi
+
+if [ "$RC" -ne 0 ]; then
+    echo "$(date): collect.py FAILED rc=$RC (see $LOG) — nothing committed" | tee -a "$LOG"
     exit 1
 fi
 
