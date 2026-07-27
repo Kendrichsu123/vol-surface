@@ -141,31 +141,115 @@ python collect.py
 Expect: Saved ~1700 rows to data/surface_YYYY-MM-DD.csv and NO plot windows.
 If it errors with "no price data" -> yfinance rate-limited, wait 60s and rerun.
 
+To take a second snapshot in the same day without overwriting the first:
+
+python collect.py --label pre
+python collect.py --label post
+
+-> data/surface_YYYY-MM-DD_pre.csv, data/surface_YYYY-MM-DD_post.csv
+
 Rules:
 
 
 Same time each day (consistency controls for intraday drift).
 Skip weekends / market holidays (market closed, no data).
-Running twice in one day just overwrites that day's file — harmless.
+Running twice in one day overwrites that day's file unless you pass --label.
 A missed day is OK; small gaps are fine.
 
 
 CRITICAL DATES (do not miss):
 
 
-July 27 — last snapshot BEFORE FOMC (pre-event baseline).
-July 28-29 — FOMC meeting.
-July 30 — first snapshot AFTER announcement (the crush).
+July 27 — last snapshot BEFORE FOMC (pre-event baseline). DONE.
+July 28 — FOMC day 1. Normal 3pm snapshot.
+July 29 — FOMC day 2. ANNOUNCEMENT IS 2:00pm ET, NOT AFTER THE CLOSE.
+  Run TWICE: `--label pre` at ~1:00pm ET (last clean pre-announcement read)
+  and `--label post` at the usual 3:00pm ET. Same day, same expiry ladder,
+  same spot regime — that pair IS the crush measurement, and it's much
+  cleaner than a day-over-day comparison.
+July 30 — normal snapshot; day-after confirmation.
 Keep collecting a few days after to see the term structure normalize.
 
 
+NOTE: an earlier version of these notes said "July 30 = first snapshot after
+the announcement." That was wrong — the FOMC statement lands at 2pm ET on the
+second day of the meeting, so a 3pm snapshot on July 29 is already post-crush.
+Hence the pre/post pair on the 29th.
+
+
 Collection started: 2026-07-09.
+
+
+COLLECTOR REWRITE (2026-07-27) — what changed and why
+
+
+1. Expiry selection is now by TARGET DATE OFFSET, not list index.
+
+The old spy.options[:40:3] selected by POSITION. As expiries roll off the
+front the list shifts, so the every-3rd stride lands on different dates each
+day. Measured across the first 13 snapshots: 41 distinct expiries sampled, and
+no single expiry present in more than 6 of the 13. The 2026-07-31 expiry — a
+natural one to track through the event — is missing from the entire final
+run-up week (07-21 through 07-27).
+
+Now: nearest listed expiry to each of [1, 3, 7, 14, 30, 60, 90, 180, 365, 730]
+days, unioned with an ALWAYS_INCLUDE list of the FOMC-bracketing expiries.
+Verified stable: 07-30, 07-31, 08-07 and 08-21 are now present in every run
+from 07-27 through the event window.
+
+Consequence for analysis: snapshots BEFORE 07-27 have the rotating ladder.
+Per-day term structure still works fine on them (that's what showed the
+inversion). Fixed-expiry time series only works cleanly from 07-27 forward.
+
+
+2. CSV schema is wider.
+
+Old:  log_moneyness, T, iv, spot, snapshot_date
+New:  expiry, T, strike, log_moneyness, option_type, iv, delta,
+      bid, ask, mid, openInterest, spot, snapshot_date, snapshot_ts
+
+delta is stored so the planned 25-delta skew metric is a direct computation
+instead of a re-derivation. bid/ask/openInterest are kept so a suspicious
+point can be audited after the fact instead of being unrecoverable.
+snapshot_ts records the actual run time — the 7/15 3:45pm run should have
+been in the data, not only in prose.
+
+Reading old files: they have no `expiry` column, but it's recoverable exactly
+as snapshot_date + round(T*365) days (verified to 1e-13 across all 13 files).
+
+
+3. T is now a fraction of a year to 4:00pm ET, not whole calendar days.
+
+Calendar-day resolution gives T=0 for a same-day expiry, which divides by zero
+in d1 and drops the contract. On FOMC day the 0DTE contract is the single most
+informative one on the board, so it needs time-of-day resolution. For anything
+a week or more out the difference is under ~1.3% in T (well under a vol point)
+— this matters for 0-2DTE only.
+
+Consequence: T in files from 07-27 onward is fractional; in earlier files it's
+whole days. Compare via `expiry`, not via raw T.
+
+
+4. run_collect.sh fails loudly.
+
+Previously: no error checking at all. If collect.py died (yfinance rate limits,
+which happens), git staged nothing, the commit no-op'd, and the script still
+exited 0 — a silent miss. Now it checks the exit code, verifies the expected
+file exists before committing, retries the push with backoff, and exits
+non-zero on failure. Takes an optional label argument: ./run_collect.sh pre
+
+
+5. main.py tests are asserts, not prints.
+
+A printed test can't fail. Added delta coverage (bounds + put/call delta
+parity). Run with: python main.py
 
 
 TODO
 
 
  Run collect.py daily through early August.
+ July 29: run BOTH --label pre (~1pm ET) and --label post (~3pm ET).
  Clean up filters if needed (consider a min-price floor > $0.10 on the wings).
  Phase 4 analysis script (early August, once data is in):
 load all data/*.csv, extract ATM IV per expiry per day, plot the
