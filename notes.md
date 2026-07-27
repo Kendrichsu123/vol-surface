@@ -276,3 +276,5 @@ Studying FOMC vol crush — a real thing desks position around.
 
 
 Error Fix on 7/15 at 3:45pm. Lost wifi connection so lost virtual environment; surface_2026-07-15.csv was not created at 3pm and instead created at 3:45pm
+
+Pre-event eyeball: front-expiry IV up ~40-50% vs mid-July, but confounded by shorter T and a 2% spot decline. Need matched-maturity comparison in analysis."
