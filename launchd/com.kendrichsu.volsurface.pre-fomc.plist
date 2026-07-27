@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  One-off pre-announcement snapshot: 1:00pm ET on July 29, the FOMC decision
+  day. The statement lands at 2:00pm ET, so the regular 3:00pm job already
+  captures the post-crush state; this job captures the last clean read before
+  it. The pair is same-day, same expiry ladder, same spot regime.
+
+  Install:
+    cp launchd/com.kendrichsu.volsurface.pre-fomc.plist ~/Library/LaunchAgents/
+    launchctl unload ~/Library/LaunchAgents/com.kendrichsu.volsurface.pre-fomc.plist 2>/dev/null
+    launchctl load   ~/Library/LaunchAgents/com.kendrichsu.volsurface.pre-fomc.plist
+    launchctl list | grep pre-fomc
+
+  Verify it will fire (should print the job with a 0 exit status):
+    launchctl print gui/$(id -u)/com.kendrichsu.volsurface.pre-fomc | head -30
+
+  Remove after the event:
+    launchctl unload ~/Library/LaunchAgents/com.kendrichsu.volsurface.pre-fomc.plist
+    rm ~/Library/LaunchAgents/com.kendrichsu.volsurface.pre-fomc.plist
+
+  NOTE: StartCalendarInterval with Month+Day set fires once a year, not once
+  ever. Unload it after the event so it doesn't surprise you next July.
+
+  NOTE: the machine must be awake at 1:00pm. launchd will run a missed job
+  once on wake, but "1:05pm because the lid was shut" is not the same
+  measurement. Keep the laptop open and online.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.kendrichsu.volsurface.pre-fomc</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/kendrichsu/vol-surface/run_collect.sh</string>
+        <string>pre</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/kendrichsu/vol-surface</string>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Month</key>
+        <integer>7</integer>
+        <key>Day</key>
+        <integer>29</integer>
+        <key>Hour</key>
+        <integer>13</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/kendrichsu/vol-surface/launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/kendrichsu/vol-surface/launchd.err</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>
