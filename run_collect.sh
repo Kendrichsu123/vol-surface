@@ -49,6 +49,17 @@ if [ ! -f "$EXPECTED" ]; then
     exit 0
 fi
 
+# Pull before committing. The remote can move ahead between runs (e.g. a
+# doc commit pushed from elsewhere), and without this the push below fails
+# non-fast-forward and the snapshot silently stays local. Rebase keeps the
+# snapshot commits linear on top of whatever arrived.
+git fetch origin main >> "$LOG" 2>&1
+if ! git rebase origin/main >> "$LOG" 2>&1; then
+    git rebase --abort >> "$LOG" 2>&1
+    echo "$(date): rebase onto origin/main FAILED — resolve by hand" | tee -a "$LOG"
+    exit 1
+fi
+
 git add data/
 if git diff --cached --quiet; then
     echo "$(date): $EXPECTED unchanged — nothing to commit" | tee -a "$LOG"

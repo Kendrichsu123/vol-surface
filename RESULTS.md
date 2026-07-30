@@ -148,7 +148,11 @@ has barely moved, and there is no overnight gap.
 07-29 15:00  2024 rows  14 expiries  spot 742.02   <- post-announcement
 ```
 
-**16 snapshots total, 29,272 rows** (23,120 v1 + 6,152 v2).
+```
+07-30 15:00  ~2000 rows  14 expiries  spot 740.79   <- day after
+```
+
+**17 snapshots total** (13 v1 + 4 v2).
 
 ### The forward bias — discovered July 28
 
@@ -220,7 +224,13 @@ predicted 3pm ATM IV once event variance is released:
 
 ### What happened
 
-**Realized move 1pm → 3pm: +0.964%** (734.93 → 742.02). Inside the predicted
+**Realized move 1pm → 3pm: +0.964%** (734.93 → 742.02). But the 3pm snapshot
+landed near a transient peak: SPY fell to roughly 730 by 3:55pm, so the move
+over the window the forecast actually covered — 1pm to the 4pm close — was
+**−0.671%**. Still inside the predicted band, but the market delivered *less*
+net movement than priced, not more. Note also the path: SPY covered 730–743, a
+1.8% intraday range, to finish 0.67% lower. Options price the terminal
+distribution, not the path. Inside the predicted
 ±1.07% band, with an hour still to the close.
 
 ```
@@ -351,7 +361,9 @@ alone moves it from 1.13% to 1.72% — and that expiry did not calibrate in
 either snapshot. Do not quote it.
 
 The 1:00pm forecast of ±0.88% was close to the ≤30-day answer of 0.95%, and
-the realized **+0.964%** move landed inside the predicted ±1.07% band.
+the realized move landed inside the predicted ±1.07% band (−0.671% measured to
+the 4pm close, the window the forecast covered; +0.964% measured to the 3pm
+snapshot, which caught a transient spike).
 
 ### Superseded estimates — do not quote these
 
@@ -454,6 +466,57 @@ than trading time; liquidity filters bias toward liquid strikes.
 
 ---
 
+## 7b. Did the crush hold? — the July 30 test
+
+The one question the post-event data could settle. Spot moved only **−0.17%**
+from Wednesday 3pm to Thursday 3pm, so there is no skew-traversal ambiguity in
+this comparison.
+
+```
+expiry         days      Tue      Wed      Thu   Wed->Thu   wing gap Thu
+2026-07-31      1.0    19.4%    19.7%    17.6%     -2.13         2.6
+2026-08-04      5.0    15.5%    14.7%    13.0%     -1.77         1.7
+2026-08-07      8.0    15.8%    15.4%    14.5%     -0.89         1.0
+2026-08-14     15.0    15.3%    14.7%    14.5%     -0.23         0.5
+2026-08-21     22.0    15.1%    14.4%    14.5%     +0.03         0.4
+2026-08-28     29.0    15.2%    14.8%    14.9%     +0.12         0.2
+2026-09-30     62.0    15.2%    14.9%    15.1%     +0.23         1.3
+2027-06-30    335.0    18.9%    18.6%    18.6%     +0.05         0.3
+```
+
+**The crush held.** At 15–30 days — where the clean signal lives — Thursday sat
+within 0.25 vol points of Wednesday, well inside the normal daily fluctuation.
+The event premium was released and stayed released. It did not refill toward
+the Tuesday level.
+
+**The front kept falling.** The 1–8 day expiries dropped a further 0.9–2.1
+points. This confirms the reading of Wednesday's data: the front end was
+elevated by *turbulence*, not by the event, and it decayed once the market
+settled. The two components separate by their behaviour over time — the event
+release is permanent, the turbulence premium decays — which is cleaner evidence
+than the regression in section 7.
+
+**Data quality returned to normal.** Thursday's put/call wing gaps are 0.2–2.6
+vol points against Wednesday's 5–8, confirming those wide gaps were the fast
+tape rather than anything systematic in the pipeline.
+
+### A cleaner estimator found late
+
+Tuesday 3pm and Wednesday 3pm had nearly identical spot (741.49 vs 742.02,
+0.07% apart), so comparing them is free of the skew-traversal problem that
+complicates the 1pm/3pm pair. The observed drops at 16/23/30 days were
+**0.59 / 0.63 / 0.44** vol points against model predictions of
+**0.68 / 0.48 / 0.36** — an independent corroboration of the ±0.95% event size,
+using different snapshots than the fit.
+
+**Caveat on signal size.** Those drops are individually *smaller* than the
+normal daily fluctuation (sd 1.09–1.49 vol points at these tenors). What gives
+them weight is that all five mid-dated tenors moved the same direction with
+magnitudes matching a model fitted from other data — not the size of any single
+number.
+
+---
+
 ## 8. Which data actually produced which result
 
 Worth stating plainly, because the answer is not "all 16 snapshots equally."
@@ -494,7 +557,7 @@ ladder and the once-daily cadence.
 | Event premium exists pre-announcement | yes | **partly** — clear at 1pm on 07-29, but *not* consistently visible in the daily snapshots before that |
 | Premium collapses at 2:00pm | yes | **yes** — 5–7 vol points at the front |
 | Effect localised to short expiries | yes | **yes** — 688-day expiry moved 0.3 pts against a predicted 0.01 |
-| Size of the move | ±0.88% (forecast) | ±0.964% realized; event component **±0.95%** |
+| Size of the move | ±0.88% (forecast) | −0.671% realized to the close; event component **±0.95%** |
 | Only one effect (the event) | yes | **no** — market-wide vol fell too, separable |
 | Statistically distinguishable from noise | hoped | **not established** — null band inconclusive, and absent at the front |
 | Pre-event build-up trackable day by day | yes | **no** — ladder rotation and daily cadence prevent it |
@@ -503,8 +566,9 @@ ladder and the once-daily cadence.
 
 ## 10. What now
 
-- [ ] Keep collecting through early August — the term structure normalising
-      over several days is part of the result.
+- [x] Keep collecting through early August — the term structure normalising
+      over several days is part of the result. **July 30 confirms the crush
+      held; see section 7b.**
 - [ ] README with the hypothesis, the charts, and the honest limitations.
 - [ ] Optional: SVI fits per smile; SPY vs a single name (NVDA).
 - [ ] **Intraday sampling at the next event.** Hourly through the session
