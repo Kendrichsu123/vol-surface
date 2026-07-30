@@ -380,8 +380,15 @@ calibrated, all      n=10   a = 2.95e-4  ->  1.72%    R2 = 0.950
 ```
 
 > **Headline: the market priced the Fed announcement at about ±0.95% of SPY
-> movement.** R² = 0.996 — an almost perfect fit — and it uses none of the
-> contaminated short-dated data.
+> movement.** It uses none of the contaminated short-dated data.
+
+**How much weight to put on R² = 0.996.** It means the five points sit almost
+exactly on the fitted line. But the line was fitted *to those same five
+points*, so this is an **in-sample** measure — a statement that the data is
+well-behaved, not a test of the model. With 5 points and 2 parameters, almost
+any smooth relationship would fit this well. The genuine out-of-sample test in
+this project is the 1:00pm forecast in B5, which was written before the
+outcome existed. Keep the two separate.
 
 **Why the all-expiry number is higher and shouldn't be used.** Least squares
 minimises squared error, so a point far from the rest dominates. The 688-day
@@ -428,8 +435,54 @@ The middle expiries fell more than the event alone explains (07-31: 5.6
 observed vs 3.73 predicted). Volatility also declined market-wide for unrelated
 reasons — that's the `b*T` term in C1.
 
-A sloppier analysis would have added the two together and claimed a bigger
-event. Separating them is a better result than a single clean number.
+The clearest way to see the split is the event's *share* of what each expiry
+released. The event lump is identical every time (0.000091) — what grows is
+everything else:
+
+```
+    days   total released   event part   event share
+     6.1        0.000198     0.000091         45.9%
+     9.1        0.000235     0.000091         38.6%
+    23.1        0.000471     0.000091         19.3%
+    93.1        0.000859     0.000091         10.6%
+   336.1        0.001673     0.000091          5.4%
+   688.0        0.002368     0.000091          3.8%
+```
+
+Note that even at the **shortest clean expiry** the event is only 46% of what
+was released. The market-wide decline is present across the whole curve, not
+only at long maturities — a second, independent argument for two components.
+
+Splitting each observed volatility drop the same way:
+
+```
+expiry         days     pre    post   drop   event   market-wide
+2026-07-30      1.1   28.9%   22.1%   6.80    5.21          1.59
+2026-07-31      2.1   25.3%   19.7%   5.60    3.12          2.48
+2026-08-07      9.1   18.2%   15.5%   2.70    1.00          1.70
+2026-08-21     23.1   16.8%   14.4%   2.40    0.43          1.97
+2026-10-30     93.1   16.6%   15.6%   1.00    0.11          0.89
+2028-06-16    688.0   21.0%   20.7%   0.30    0.01          0.29
+```
+
+The front is event-dominated; the 688-day expiry is **97% market-wide**, which
+is exactly why it works as a control in C2.
+
+**Converting `b` into vol points.** At the 23-day expiry, starting from 16.8%:
+`sqrt(0.168² − 0.00607) = 14.9%`, a drop of **1.9 vol points**. You subtract
+inside the square root because variance is the additive quantity (A5).
+
+**But that 1.9 does not hold at long maturities.** The same formula at 688 days
+predicts a 1.5-point drop; the observed drop was 0.3 — an over-prediction of
+5×. Volatility **mean-reverts**, so a shock to current vol fades as maturity
+extends, and a constant rate-shift (`b × T`) is too crude far out. The `a + b*T`
+model is a useful local description, not the true structure. Say "ordinary
+volatility fell about 1.9 points at short maturities, less further out" rather
+than quoting 1.9 as a single market-wide figure.
+
+A sloppier analysis would have added the two components together and claimed a
+bigger event — roughly ±1.7% instead of ±0.95%. Separating them is a better
+result than a single clean number.
 
 ## C4 · REVISED — Numbers I stopped trusting
 
