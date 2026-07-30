@@ -558,9 +558,11 @@ ladder and the once-daily cadence.
 | Premium collapses at 2:00pm | yes | **yes** — 5–7 vol points at the front |
 | Effect localised to short expiries | yes | **yes** — 688-day expiry moved 0.3 pts against a predicted 0.01 |
 | Size of the move | ±0.88% (forecast) | −0.671% realized to the close; event component **±0.95%** |
-| Only one effect (the event) | yes | **no** — market-wide vol fell too, separable |
+| Only one effect (the event) | yes | **no** — a residual beyond the event exists; §7b shows the front part was post-announcement turbulence that decayed by the next day |
+| Premium stays released | assumed | **yes** — 15–30 day expiries within 0.25 pts the next day (§7b) |
 | Statistically distinguishable from noise | hoped | **not established** — null band inconclusive, and absent at the front |
 | Pre-event build-up trackable day by day | yes | **no** — ladder rotation and daily cadence prevent it |
+| Post-event level cleanly observable | assumed | **no** — the 3pm snapshot landed near a transient spike; SPY fell ~12 pts in the next 55 min |
 
 ---
 

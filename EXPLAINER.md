@@ -25,6 +25,22 @@ PART D  glossary
 Companion documents: `METHODOLOGY.md` (why the design is what it is),
 `RESULTS.md` (the formal record with all numbers).
 
+## The answer, up front
+
+> The options market charged extra for the Fed announcement of July 29, 2026,
+> and that extra disappeared the moment the announcement landed.
+>
+> **Size: about ±0.95%** — the move the market priced for the event itself.
+> **It was the event, not the market:** expiries 1–2 days out fell 5–7
+> volatility points in two hours, while the 2-year expiry moved 0.3.
+> **It stuck:** the next day's snapshot showed the mid-dated expiries within
+> 0.25 points of where the announcement left them.
+>
+> One meeting, so this is a quantified case study of a known effect, not a
+> statistical result.
+
+Everything below explains how each of those numbers was arrived at.
+
 ---
 
 # PART A — Concepts
@@ -429,7 +445,7 @@ A market-wide calming pushes *everything* down together. An event crushes the
 front and leaves the back alone. **Observed: 6.8 at the front, 0.3 at the back.
 Only an event does that.**
 
-## C3 · FINDING — Two things happened at once
+## C3 · FINDING — The event alone doesn't explain the whole drop
 
 The middle expiries fell more than the event alone explains (07-31: 5.6
 observed vs 3.73 predicted). Volatility also declined market-wide for unrelated
@@ -465,8 +481,13 @@ expiry         days     pre    post   drop   event   market-wide
 2028-06-16    688.0   21.0%   20.7%   0.30    0.01          0.29
 ```
 
-The front is event-dominated; the 688-day expiry is **97% market-wide**, which
-is exactly why it works as a control in C2.
+The front is event-dominated; the 688-day expiry is **97% not-the-event**,
+which is exactly why it works as a control in C2.
+
+**What that "not-the-event" part actually is turned out to be two different
+things**, and C6 separates them. Read this section as "there is a residual
+beyond the event," not as "a market-wide volatility decline happened" — that
+label was premature.
 
 **Converting `b` into vol points.** At the 23-day expiry, starting from 16.8%:
 `sqrt(0.168² − 0.00607) = 14.9%`, a drop of **1.9 vol points**. You subtract
@@ -567,7 +588,45 @@ listed expiries that short. Another downstream cost of B3.
 
 **n = 1.** One meeting is a case study, not proof.
 
-## C6 · FINDING — Which data produced which result
+## C6 · FINDING — Did the crush stick? (July 30)
+
+*This is the section that resolves C3.*
+
+The day after the announcement gives a clean test, because spot moved only
+**−0.17%** overnight — so none of the skew-traversal ambiguity from C4 applies.
+
+```
+expiry         days      Tue      Wed      Thu   Wed->Thu
+2026-07-31      1.0    19.4%    19.7%    17.6%     -2.13
+2026-08-04      5.0    15.5%    14.7%    13.0%     -1.77
+2026-08-07      8.0    15.8%    15.4%    14.5%     -0.89
+2026-08-14     15.0    15.3%    14.7%    14.5%     -0.23
+2026-08-21     22.0    15.1%    14.4%    14.5%     +0.03
+2026-08-28     29.0    15.2%    14.8%    14.9%     +0.12
+2027-06-30    335.0    18.9%    18.6%    18.6%     +0.05
+```
+
+**Two clean results.**
+
+**The event release was permanent.** At 15–30 days — where the clean signal
+lives — Thursday sat within 0.25 points of Wednesday. It did not climb back
+toward Tuesday's 15.1%. The premium came out and stayed out.
+
+**The front's extra elevation was turbulence, and it decayed.** The 1–8 day
+expiries fell a *further* 0.9–2.1 points. Those expiries had been high on
+Wednesday not because of the Fed but because the market was moving violently
+(SPY swung 730–743 that afternoon). Once it settled, they came down.
+
+**So the two components separate by their behaviour over time**, which is
+better evidence than the regression in C1: an event release is permanent, a
+turbulence premium is not. This is what C3 was groping toward with the label
+"market-wide decline," which was the wrong name for it.
+
+**Data quality also returned to normal.** Thursday's put/call wing gaps were
+0.2–2.6 points against Wednesday's 5–8, confirming those wide gaps were the
+fast market rather than anything wrong with the pipeline.
+
+## C7 · FINDING — Which data produced which result
 
 | result | snapshots used | count |
 |---|---|---|

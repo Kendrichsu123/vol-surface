@@ -28,6 +28,14 @@ Two testable predictions:
 2. **After the event:** that hump collapses and the term structure returns to a
    smooth shape.
 
+**Both held.** The market priced the announcement at about **±0.95%** of SPY
+movement; front expiries fell 5–7 volatility points within two hours of 2:00pm
+while the 2-year expiry moved 0.3; and the next day's snapshot showed the
+mid-dated expiries within 0.25 points of where the announcement left them, so
+the release was permanent. Full numbers in `RESULTS.md`; plain-language
+walkthrough in `EXPLAINER.md`. This document explains why the design is built
+the way it is.
+
 ---
 
 ## 2. Why implied volatility is the right observable
@@ -286,13 +294,21 @@ market feature would not behave this way. Measured on the July 27 snapshot:
 3. **Calibrate the forward per expiry.** Solve for the `F` that makes the two
    wings agree, then re-invert every quote against it. This is the correct fix
    and is possible offline because `strike`, `option_type`, `mid`, and `spot`
-   are all stored. Not yet implemented.
+   are all stored. **Implemented in `analysis.py`**; it solves 135 of 175
+   expiries, with wing-averaging as the fallback for the rest.
 
-**This bias revised the headline number.** An initial reading of the July 27
-snapshot interpolated across both wings and reported a ~4.3 vol-point hump at
-the event expiry. Wing-averaging gives **~3 points** (19.7% at 3 days against
-16.4% and 16.7% behind it). The effect is real; the first estimate was inflated
-by the put wing.
+**This bias revised the headline number, twice.** An initial reading of the
+July 27 snapshot interpolated across both wings and reported a ~4.3 vol-point
+hump. Wing-averaging — which cancels an antisymmetric error to first order —
+gives **~3 points** (19.7% at 3 days against 16.4% and 16.7% behind it).
+
+The final figure came later still, and from a different measurement: fitting
+`dV(T) = a + b*T` using **only expiries where forward calibration succeeded in
+both the pre and post snapshots**, restricted to 30 days and under. That gives
+an implied event move of **±0.95%** (R² = 0.996, n = 5). Three earlier
+estimates that leaned on the 0DTE expiry — a "3.1× a normal window" ratio, a
+0.90% direct read, and a 1.29% front-cluster average — were dropped once that
+expiry was found to fail calibration entirely. See `RESULTS.md` §7.
 
 ---
 
@@ -347,6 +363,18 @@ event — but it is the standard desk calculation.
   `spread/mid < 0.5` biases toward liquid strikes, which thins the wings —
   particularly the far-dated deep-OTM put wing, the least reliable region of
   the surface.
+- **A concurrent market-wide move cannot be separated from the spot move.**
+  SPY rose 0.96% between the pre and post snapshots. Because of skew,
+  at-the-money volatility falls mechanically when spot rises *if* the smile is
+  fixed in strike space ("sticky-strike"), and does not if the smile travels
+  with spot ("sticky-moneyness"). Real markets sit between, and a single event
+  with a single spot move cannot distinguish them. Any residual attributed to
+  "market-wide volatility" is therefore uncertain in size.
+- **One snapshot cannot distinguish a level from a spike.** The 3:00pm
+  post-event reading landed near a transient peak — SPY fell about 12 points in
+  the following 55 minutes. The measurement of that two-hour window is valid,
+  but it should not be read as "the settled post-event state." This is the
+  strongest argument for intraday sampling at a future event.
 
 ---
 
