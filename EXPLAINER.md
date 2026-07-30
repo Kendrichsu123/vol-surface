@@ -22,8 +22,8 @@ PART C  the findings    what the data said, and how much to trust it
 PART D  glossary
 ```
 
-Companion documents: `METHODOLOGY.md` (why the design is what it is),
-`RESULTS.md` (the formal record with all numbers).
+Companion document: `RESULTS.md` — the formal record, with every number and
+the chronology of what went wrong when.
 
 ## The answer, up front
 
@@ -450,6 +450,39 @@ vol points** — invisible. It moved 0.3. So that 0.3 **can't be the Fed**.
 A market-wide calming pushes *everything* down together. An event crushes the
 front and leaves the back alone. **Observed: 6.8 at the front, 0.3 at the back.
 Only an event does that.**
+
+### The formal name for this argument
+
+What the design is doing is a **difference-in-differences** — two comparisons
+that are each individually inconclusive, but conclusive together:
+
+**Comparison A — across expiries, same moment.** The event-spanning expiry
+against its neighbours in the same snapshot. Both are priced at the same
+instant under the same conditions, so any market-wide shift hits both and
+cancels. What remains is specific to spanning July 29.
+
+**Comparison B — across time, same expiry.** That expiry against itself before
+and after 2:00pm. Anything permanently characteristic of the contract — its
+maturity, its liquidity, where it sits on the smile — cancels.
+
+Neither settles it alone. A could be a term-structure quirk; B could be the
+market simply calming down. **Their interaction is the result:** an excess
+present in A *before* the announcement and absent in A *after* it can only
+plausibly be the event.
+
+### Why the pre/post pair had to be same-day
+
+The two snapshots are **two hours apart, not a day.** That was a deliberate
+design choice once the 2:00pm announcement time was pinned down (B3):
+
+- `T` is essentially unchanged, so no adjustment for time decay
+- the expiry ladder is identical
+- spot has barely moved, so "at-the-money" means nearly the same strike
+- no overnight gap, no weekend, no other news cycle
+
+A day-over-day comparison would have confounded the crush with a full session
+of unrelated movement. Two hours astride the announcement isolates it about as
+cleanly as public data allows.
 
 ## C3 · FINDING — The event alone doesn't explain the whole drop
 

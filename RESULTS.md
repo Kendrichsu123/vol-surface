@@ -3,8 +3,9 @@
 A chronological account: what was expected, what was collected, what went
 wrong, what was done about it, and what the data actually showed.
 
-Companion to `METHODOLOGY.md`, which explains *why* each step is designed the
-way it is. This document is *what happened*.
+Companion to `EXPLAINER.md`, which teaches the concepts and walks the story in
+plain language. This document is the record: every number, and what went wrong
+when.
 
 ---
 
@@ -468,7 +469,7 @@ event.
 **n = 1.** One meeting is a case study of a known effect, not a statistical
 result. Establishing significance needs many event dates.
 
-**Other limitations** carried from `METHODOLOGY.md`: SPY options are American
+**Other limitations.** SPY options are American
 and Black-Scholes prices European; flat `r` and `q`; calendar-time `T` rather
 than trading time; liquidity filters bias toward liquid strikes.
 

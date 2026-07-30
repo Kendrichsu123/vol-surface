@@ -4,7 +4,7 @@ Run:  python analysis.py
 
 Steps:
   1. Calibrate the forward per expiry, correcting the stale-spot bias
-     (METHODOLOGY.md section 6) instead of just wing-averaging around it.
+     (RESULTS.md section 4) instead of just wing-averaging around it.
   2. Build the ATM term structure per snapshot, in total-variance terms.
   3. Decompose the 1pm -> 3pm change on FOMC day into a one-off event chunk
      and an ongoing variance-rate shift.
