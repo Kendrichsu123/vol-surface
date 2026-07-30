@@ -250,6 +250,30 @@ dV(T) = a + b*T
   <=60d only      a = 1.10e-4 -> 1.05%   b = +0.00504   R2 = 0.961
 ```
 
+### Caveat — the market-wide component may be a measurement effect
+
+SPY rose 0.96% between the two snapshots. Because of skew, "at-the-money" at
+742 is a different point on the smile than at-the-money at 735, so if the smile
+stays fixed in strike space, ATM volatility falls mechanically as spot rises —
+without any real volatility change.
+
+The predicted size of that effect closely matches the "market-wide" component
+at most maturities (e.g. 2027-06-30: predicted -0.42 vol pts, observed -0.47;
+2026-10-30: predicted -0.92, observed -0.89). Removing it leaves the variance
+released roughly flat across maturity, which is the signature of a pure one-off
+event with no second component.
+
+**What this changes:** the event estimate holds (corrected central value 1.09%,
+range 0.84-1.30%, against the 0.95% reported above). The claim of a *separate
+market-wide decline* is the part in doubt, and the 1.9 vol point figure should
+not be quoted without this caveat.
+
+**What is unresolved:** the correction assumes the smile is fixed in strike
+space ("sticky-strike"). If it instead travels with spot ("sticky-moneyness"),
+no correction is needed and the original two-component reading stands. Real
+markets sit between. A single spot move cannot distinguish them — that needs
+several events with different spot moves.
+
 Two separable effects: a **one-off release** (`a`) and an **ongoing
 variance-rate decline** (`b`). A naive analysis would have merged them and
 reported a larger event.
