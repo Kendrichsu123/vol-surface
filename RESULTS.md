@@ -354,7 +354,15 @@ calibrated, all      n=10   a = 2.95e-4  ->  1.72%    R2 = 0.950
 
 Ten expiries calibrated in both snapshots. The ≤30-day fit uses five of them,
 achieves R² = 0.996, and depends on **none** of the contaminated short-dated
-readings. **Take ±0.95%, with ±1.13% as the looser bound.**
+readings. **Take ±0.95% as the point estimate.**
+
+**Uncertainty is wider than that fit suggests.** Correcting for the skew
+traversal (the 0.96% spot move sliding the ATM point down the smile) lowers the
+≤30-day intercept to **0.62%**, while the flat mean of the corrected releases
+gives **1.09%**. Independently, the July 28 snapshot implied a Wednesday
+premium of only **0.48%** (see §7, "What is weak"). The defensible range is
+therefore roughly
+**0.5%–1.1%**, and ±0.95% may sit toward the high end of it.
 
 The all-expiry intercept is leverage-driven — including the 688-day expiry
 alone moves it from 1.13% to 1.72% — and that expiry did not calibrate in

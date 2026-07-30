@@ -31,6 +31,8 @@ Companion documents: `METHODOLOGY.md` (why the design is what it is),
 > and that extra disappeared the moment the announcement landed.
 >
 > **Size: about ±0.95%** — the move the market priced for the event itself.
+> (A point estimate with real uncertainty: methods range roughly 0.5%–1.1%.
+> See C5.)
 > **It was the event, not the market:** expiries 1–2 days out fell 5–7
 > volatility points in two hours, while the 2-year expiry moved 0.3.
 > **It stuck:** the next day's snapshot showed the mid-dated expiries within
@@ -398,6 +400,10 @@ calibrated, all      n=10   a = 2.95e-4  ->  1.72%    R2 = 0.950
 > **Headline: the market priced the Fed announcement at about ±0.95% of SPY
 > movement.** It uses none of the contaminated short-dated data.
 
+Treat that as a point estimate, not a tight number. Other defensible methods
+give 0.5%–1.1% — see C5 §3 for why, and for the one comparison that suggests
+±0.95% may sit at the high end of the plausible range.
+
 **How much weight to put on R² = 0.996.** It means the five points sit almost
 exactly on the fitted line. But the line was fitted *to those same five
 points*, so this is an **in-sample** measure — a statement that the data is
@@ -447,119 +453,116 @@ Only an event does that.**
 
 ## C3 · FINDING — The event alone doesn't explain the whole drop
 
-The middle expiries fell more than the event alone explains (07-31: 5.6
-observed vs 3.73 predicted). Volatility also declined market-wide for unrelated
-reasons — that's the `b*T` term in C1.
+*This section raises a problem. C6 resolves it.*
 
-The clearest way to see the split is the event's *share* of what each expiry
-released. The event lump is identical every time (0.000091) — what grows is
-everything else:
+The event explains the front of the curve well, but not the middle and back:
 
 ```
-    days   total released   event part   event share
-     6.1        0.000198     0.000091         45.9%
-     9.1        0.000235     0.000091         38.6%
-    23.1        0.000471     0.000091         19.3%
-    93.1        0.000859     0.000091         10.6%
-   336.1        0.001673     0.000091          5.4%
-   688.0        0.002368     0.000091          3.8%
+expiry         days   observed drop   event explains   left over
+2026-07-31      2.1        5.60            3.12          2.48
+2026-08-07      9.1        2.70            1.00          1.70
+2026-08-21     23.1        2.40            0.43          1.97
+2026-10-30     93.1        1.00            0.11          0.89
+2028-06-16    688.0        0.30            0.01          0.29
 ```
 
-Note that even at the **shortest clean expiry** the event is only 46% of what
-was released. The market-wide decline is present across the whole curve, not
-only at long maturities — a second, independent argument for two components.
+At 23 days the event accounts for 0.43 of a 2.40-point drop. Something else did
+most of the work.
 
-Splitting each observed volatility drop the same way:
+### Most of it is the stock price moving, not volatility falling
+
+SPY rose 0.96% between the two snapshots (734.93 → 742.02).
+
+"At-the-money volatility" means *the volatility at whatever strike the stock
+currently sits at*. When the stock moves, that's a **different strike** — and
+because of skew (A1), different strikes carry different volatilities, with
+lower strikes always more expensive.
+
+So a rally slides your measurement point rightward, down the skew. **ATM
+volatility reads lower even if not a single option's price changed.**
+
+Here is the test. The skew slope says how steep the hill is at each maturity;
+multiply by the 0.96% move to get the predicted slide:
 
 ```
-expiry         days     pre    post   drop   event   market-wide
-2026-07-30      1.1   28.9%   22.1%   6.80    5.21          1.59
-2026-07-31      2.1   25.3%   19.7%   5.60    3.12          2.48
-2026-08-07      9.1   18.2%   15.5%   2.70    1.00          1.70
-2026-08-21     23.1   16.8%   14.4%   2.40    0.43          1.97
-2026-10-30     93.1   16.6%   15.6%   1.00    0.11          0.89
-2028-06-16    688.0   21.0%   20.7%   0.30    0.01          0.29
+expiry          skew slope   predicted from    left over
+                             the spot move     (from above)
+2026-07-31          -2.52        -2.42            2.48
+2026-08-07          -1.90        -1.82            1.70
+2026-08-21          -1.47        -1.41            1.97
+2026-10-30          -0.96        -0.92            0.89
+2027-06-30          -0.43        -0.42            0.47
+2028-06-16          -0.16        -0.16            0.29
 ```
 
-The front is event-dominated; the 688-day expiry is **97% not-the-event**,
-which is exactly why it works as a control in C2.
+**Those two columns match almost expiry for expiry.**
 
-**What that "not-the-event" part actually is turned out to be two different
-things**, and C6 separates them. Read this section as "there is a residual
-beyond the event," not as "a market-wide volatility decline happened" — that
-label was premature.
+### Why it shrinks with maturity
 
-**Converting `b` into vol points.** At the 23-day expiry, starting from 16.8%:
-`sqrt(0.168² − 0.00607) = 14.9%`, a drop of **1.9 vol points**. You subtract
-inside the square root because variance is the additive quantity (A5).
+The skew slope falls from −2.52 at two days to −0.16 at two years: **skew
+flattens as you look further out.** Over a single day a crash is a dramatic
+tail event that dominates the shape of the distribution, so downside protection
+is far more expensive than upside. Over two years, crashes and recoveries
+average out and the two wings price much closer together.
 
-**But that 1.9 does not hold at long maturities.** The same formula at 688 days
-predicts a 1.5-point drop; the observed drop was 0.3 — an over-prediction of
-5×. Volatility **mean-reverts**, so a shock to current vol fades as maturity
-extends, and a constant rate-shift (`b × T`) is too crude far out. The `a + b*T`
-model is a useful local description, not the true structure. Say "ordinary
-volatility fell about 1.9 points at short maturities, less further out" rather
-than quoting 1.9 as a single market-wide figure.
+Since the slide is `slope × spot move`, a flatter hill means a smaller slide.
+That is why the leftover shrinks from ~2.5 points at the front to ~0.3 at two
+years — **and why it initially looked like "a market-wide volatility decline
+that decays with maturity."** It has that shape because *skew* has that shape.
 
-### Caveat — the market-wide component may be a measurement effect
+### How much of it is real?
 
-SPY rose 0.96% between the two snapshots. Because of skew, "at-the-money" at
-742 is a different point on the smile than at-the-money at 735, so if the smile
-stays fixed in strike space, ATM volatility falls mechanically as spot rises —
-without any real volatility change.
+Genuinely unresolved:
 
-The predicted size of that effect closely matches the "market-wide" component
-at most maturities (e.g. 2027-06-30: predicted -0.42 vol pts, observed -0.47;
-2026-10-30: predicted -0.92, observed -0.89). Removing it leaves the variance
-released roughly flat across maturity, which is the signature of a pure one-off
-event with no second component.
+- If the smile is **fixed in strike space**, nothing got cheaper — you measured
+  a different option. Pure measurement effect.
+- If the smile **travels with spot**, ATM volatility really did fall.
 
-**What this changes:** the event estimate holds (corrected central value 1.09%,
-range 0.84-1.30%, against the 0.95% reported above). The claim of a *separate
-market-wide decline* is the part in doubt, and the 1.9 vol point figure should
-not be quoted without this caveat.
+Real markets sit between, and **one event with one spot move cannot tell you
+where.** Recorded as a limitation rather than resolved.
 
-**What is unresolved:** the correction assumes the smile is fixed in strike
-space ("sticky-strike"). If it instead travels with spot ("sticky-moneyness"),
-no correction is needed and the original two-component reading stands. Real
-markets sit between. A single spot move cannot distinguish them — that needs
-several events with different spot moves.
+The accurate statement: *the extra drop is mostly explained by the spot move,
+and how much counts as a genuine volatility change is not determinable from
+this data.*
 
-A sloppier analysis would have added the two components together and claimed a
-bigger event — roughly ±1.7% instead of ±0.95%. Separating them is a better
-result than a single clean number.
+**An earlier version of this section called the leftover "a market-wide
+volatility decline."** That was asserted before the spot move was tested, and
+it was wrong to state it as a finding.
 
-## C4 · REVISED — Numbers I stopped trusting
+## C4 · REVISED — Why the 0DTE expiry is excluded, and what that retracted
 
-Three figures reported earlier all rest on the **0DTE expiry** (the one
-expiring the same afternoon), which turned out to be the worst series in the
-dataset:
+Converting price → volatility becomes hypersensitive as expiry approaches. With
+hours left, a tiny error in the stock price produces an enormous error in
+volatility — like measuring someone's height mid-jump.
 
-- largest put/call inconsistency anywhere in the data (**+30** vol points at
-  1pm, **+38.5** at 3pm)
+The 0DTE expiry (the one expiring that same afternoon) shows exactly that:
+
+- the largest put/call inconsistency anywhere in the data (**+30** vol points
+  at 1pm, **+38.5** at 3pm — see B4 for what that gap means)
 - **the forward correction failed on it entirely**, in both snapshots
 - it implies more variance for 3 hours than July 28's data priced for the whole
-  of Wednesday (1.07% vs 1.015%) — internally inconsistent
+  of Wednesday (1.07% vs 1.015%), which cannot both be true
 
-| superseded | value | replaced by |
+**So it is excluded from C1**, and anything resting on it was withdrawn:
+
+| withdrawn | value | status |
 |---|---|---|
-| "3.1× a normal 3-hour window" | 3.1× | treat as an **upper bound**, not a measurement |
-| "0DTE direct read" | 0.90% | C1's ±0.95% |
-| front cluster (<15 days) | 1.29% | C1's ±0.95% |
+| "3.1× a normal 3-hour window" | 3.1× | upper bound, not a measurement |
+| "0DTE direct read" | 0.90% | superseded by C1's ±0.95% |
+| front cluster (<15 days) | 1.29% | superseded by C1's ±0.95% |
 
-**Why the 0DTE is so unreliable:** converting price → volatility becomes
-hypersensitive as expiry approaches. With hours left, a tiny error in the stock
-price causes an enormous error in volatility. Like measuring someone's height
-mid-jump.
-
-The forecast in B5 also used the 0DTE, so **its accuracy is partly luck** —
-though it did land close to C1's answer.
+The 1:00pm forecast in B5 also used the 0DTE, so **its accuracy is partly
+luck** — though it did land close to C1's answer.
 
 ## C5 · FINDING — What's weak, stated plainly
 
-**No consistent premium before the event.** Measuring the variance rate of the
-window bracketing July 29 in each daily snapshot, against a comparable
-baseline:
+Four limitations. Two were caused by the expiry-ladder bug (B3) and would not
+recur now that it's fixed; two need more data than one event can provide.
+
+### 1. No consistent premium visible before the event *(fixable — caused by B3)*
+
+Measuring the variance rate of the window bracketing July 29 in each daily
+snapshot, against a comparable baseline:
 
 ```
 07-09   9 trading-day window   0.90x
@@ -571,22 +574,57 @@ baseline:
 07-28   1                      1.07x
 ```
 
-Most are below 1.0. The build-up isn't visible day by day — the rotating ladder
-(B3) rarely gave expiries on *both* sides of July 29, so the event is smeared
-across a multi-day window.
+Most sit below 1.0. The build-up isn't visible day by day because the rotating
+ladder rarely gave expiries on *both* sides of July 29 — so the single event
+day is smeared across a 3-to-9-day window and diluted. With the fixed ladder,
+every day would bracket it within one trading day, as July 28 does.
 
-**An unresolved inconsistency.** On July 28, the market priced Wednesday's
-excess at ~0.48%. The crush released ~0.95%. Either the premium doubled
-overnight, or the decomposition isn't fully separating the two effects.
-**Once-a-day sampling can't tell which** — the strongest argument for hourly
-snapshots next time.
+### 2. The noise test is inconclusive *(partly fixable — caused by B3)*
 
-**The noise test is inconclusive.** The crush is only 1.3–1.7× a normal day's
-fluctuation at 10–60 day maturities, and it **can't be computed at 1–2 days
-where the effect actually is**, because the old rotating ladder almost never
-listed expiries that short. Another downstream cost of B3.
+The crush is only 1.3–1.7× a normal day's fluctuation at 10–60 day maturities.
+Worse, it **can't be computed at 1–2 days where the effect actually is**,
+because the rotating ladder almost never listed expiries that short. There is
+no baseline at the front.
 
-**n = 1.** One meeting is a case study, not proof.
+### 3. Tuesday said 0.48%, Wednesday released 0.95% *(needs intraday sampling)*
+
+This one is worth spelling out, because it's the sharpest open question.
+
+On **Tuesday at 3pm**, the market's own prices said Wednesday would be worth
+about **0.48%** *more* than an ordinary day. That comes from comparing the
+expiry that dies Tuesday against the one that dies Wednesday — the gap between
+them is exactly what the market charges for Wednesday, and stripping out a
+normal day's worth leaves 0.48%.
+
+On **Wednesday**, the crush released about **0.95%**.
+
+Those should match. The event premium the market charged on Tuesday ought to
+equal what got released when the event happened. Roughly double is a real
+discrepancy. Three candidate explanations:
+
+- **The premium grew.** Volatility often builds into an event as positioning
+  concentrates. Tuesday afternoon may simply have under-priced what Wednesday
+  lunchtime believed.
+- **The 0.95% is somewhat overstated.** C3 showed the spot move inflates the
+  measured drop. Correcting for it lowers the estimate toward **0.62%** — much
+  closer to Tuesday's 0.48%. That's weak evidence the true figure sits below
+  the headline.
+- **Both.**
+
+**Once-a-day sampling cannot distinguish these**, because the entire build-up
+happened between two snapshots. Hourly sampling through the day would show the
+premium's path directly. This is the single strongest argument for intraday
+collection at a future event.
+
+Practically: treat **±0.95% as a point estimate with real uncertainty around
+it**, roughly 0.5% to 1.1% depending on method, rather than a tight number.
+
+### 4. n = 1 *(needs more events)*
+
+One meeting is a quantified case study of a known effect, not a statistical
+result. Nothing here establishes that this happens *reliably* — only that it
+happened this time, by this much, with this shape. A second and third FOMC
+meeting is the only fix.
 
 ## C6 · FINDING — Did the crush stick? (July 30)
 
