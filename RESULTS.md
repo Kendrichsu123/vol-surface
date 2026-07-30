@@ -209,6 +209,10 @@ implied move to the 4pm close   +/- 1.07%  (+/- 7.88 pts)
 the market prices these 3 hours at 3.1x an ordinary 3-hour window
 excess attributable to the Fed  +/- 0.88%
 
+[SUPERSEDED: the 3.1x rests on the 0DTE expiry, which later failed forward
+ calibration and carries the largest wing gap in the dataset. Treat it as an
+ upper bound. See section 7. The forecast itself still verified out-of-sample.]
+
 predicted 3pm ATM IV once event variance is released:
   2026-07-30   28.9% -> 25.1%
   2026-07-31   25.3% -> 22.9%
@@ -300,30 +304,63 @@ cannot separate the two.
 
 ## 7. What the answer is
 
-**The event was worth roughly ±1% on the day.** Four estimates:
+### The headline number
 
-| method | implied move |
-|---|---|
-| 0DTE direct read (brackets 2pm tightest) | 0.90% |
-| **fit restricted to ≤60d (R² = 0.96)** | **1.05%** |
-| front cluster (<15 days) | 1.29% |
-| fit, all expiries (R² = 0.91) | 1.74% |
+**The FOMC announcement was worth about ±0.95% of SPY movement.**
+
+That figure comes from fitting `dV(T) = a + b*T` using **only expiries where
+forward calibration succeeded in both the 1pm and 3pm snapshots**, restricted
+to 30 days and under:
+
+```
+calibrated, <=30d    n=5    a = 9.04e-5  ->  0.95%    R2 = 0.996
+calibrated, <=60d    n=6    a = 1.27e-4  ->  1.13%    R2 = 0.940
+calibrated, all      n=10   a = 2.95e-4  ->  1.72%    R2 = 0.950
+```
+
+Ten expiries calibrated in both snapshots. The ≤30-day fit uses five of them,
+achieves R² = 0.996, and depends on **none** of the contaminated short-dated
+readings. **Take ±0.95%, with ±1.13% as the looser bound.**
 
 The all-expiry intercept is leverage-driven — including the 688-day expiry
-alone moves it from 1.05% to 1.74%. The short-dated fit agrees with the direct
-reads and is the one to trust.
+alone moves it from 1.13% to 1.72% — and that expiry did not calibrate in
+either snapshot. Do not quote it.
 
-The 1:00pm forecast of **±0.88%** was slightly low but the right order of
-magnitude, and the realized **+0.964%** landed inside the predicted band.
+The 1:00pm forecast of ±0.88% was close to the ≤30-day answer of 0.95%, and
+the realized **+0.964%** move landed inside the predicted ±1.07% band.
+
+### Superseded estimates — do not quote these
+
+Three numbers reported earlier in the study rest on the **0DTE expiry**, which
+turned out to be the least reliable series in the dataset. That expiry:
+
+- carries the largest put/call wing gap anywhere in the data (**+30** vol
+  points at 1pm, **+38.5** at 3pm)
+- **fails forward calibration entirely**, in both snapshots
+- implies more variance for three hours than the July 28 snapshot priced for
+  the whole of Wednesday (1.07% vs 1.015%) — internally inconsistent
+
+| superseded | value | why dropped |
+|---|---|---|
+| "3.1× an ordinary 3-hour window" | 3.1× | numerator is the uncalibrated 0DTE; upper bound of unknown tightness |
+| "0DTE direct read" | 0.90% | same expiry, same problem; agreement with 0.95% is coincidental |
+| front cluster (<15 days) | 1.29% | includes the 0DTE and other uncalibrated expiries |
+
+The 3.1× figure should be treated as **an upper bound, not a measurement.**
 
 ### What is solid
 
-1. **The pre-registered forecast verified out-of-sample.** Written at 1:00pm,
-   checked against a 3:00pm outcome.
-2. **Localization.** Front expiries fell 5–7 vol points; the 688-day expiry
-   fell 0.3. No market-wide shift produces that shape. This is the single
-   strongest piece of evidence.
-3. **Two effects cleanly separated** — the one-off release and the broad
+1. **The event size, ±0.95%**, from calibrated expiries only, R² = 0.996.
+2. **The crush is real.** At 1pm the 07-30 and 07-31 expiries calibrated to
+   28.9% and 25.3% — *identical* to their wing-averaged values — so the
+   subsequent 6.8 and 5.6 point drops are not artefacts.
+3. **Localization.** Front expiries fell 5–7 vol points; the 688-day expiry
+   fell 0.3 against a predicted event effect of 0.01. No market-wide shift
+   produces that shape. This is the single strongest piece of evidence.
+4. **The pre-registered forecast verified out-of-sample.** Written at 1:00pm,
+   checked at 3:00pm. Note the forecast itself used the 0DTE, so its accuracy
+   is partly luck.
+5. **Two effects separated** — the one-off release and the broad
    variance-rate decline.
 
 ### What is weak — state this plainly
@@ -349,6 +386,41 @@ That is a direct downstream cost of the expiry-ladder bug: fixed in time to
 capture the event, but not in time to build a baseline at the tenors that
 matter.
 
+**There is no consistent pre-event premium in the daily data.** For each
+snapshot, the variance rate of the window bracketing July 29, measured against
+a maturity-comparable baseline (a consecutive expiry pair in the 14–45 day
+range):
+
+```
+snapshot   event window   trading days   ratio
+07-09      07-20 > 07-31        9        0.90x
+07-14      07-22 > 07-31        7        0.97x
+07-17      07-27 > 07-31        4        1.15x
+07-20      07-28 > 07-31        3        1.33x
+07-21      07-24 > 07-29        3        0.80x
+07-23      07-28 > 07-31        3        1.37x
+07-28      07-28 > 07-29        1        1.07x
+```
+
+Most sit below 1.0, and the only snapshot with a tight one-trading-day bracket
+shows just 1.07×. Two reasons the pre-event days cannot see the premium: the
+rotating ladder rarely provided expiries on both sides of July 29, so the event
+is diluted across a multi-day window; and once-daily sampling cannot resolve a
+premium that builds through a single morning.
+
+A first attempt at this table used the *longest* expiries as the baseline and
+produced ratios below 1.0 everywhere. That was wrong — SPY's long-dated ATM
+vol (~21%) naturally exceeds short-dated (~15%), so a far window always looks
+busier per unit time. The baseline must be maturity-comparable.
+
+**An unresolved inconsistency.** As of July 28 at 3pm, the market priced
+Wednesday's excess variance at roughly 0.48%. The realized crush released
+0.95–1.13%. Either the premium roughly doubled between Tuesday afternoon and
+Wednesday 1pm, or the `a + b*T` decomposition is not fully separating the event
+from the concurrent market-wide move. **Once-daily sampling cannot distinguish
+these.** This is the strongest argument for intraday snapshots at the next
+event.
+
 **n = 1.** One meeting is a case study of a known effect, not a statistical
 result. Establishing significance needs many event dates.
 
@@ -358,25 +430,62 @@ than trading time; liquidity filters bias toward liquid strikes.
 
 ---
 
-## 8. Expected vs actual
+## 8. Which data actually produced which result
 
-| | expected | actual |
+Worth stating plainly, because the answer is not "all 16 snapshots equally."
+
+| result | snapshots used | count |
 |---|---|---|
-| Event premium exists pre-announcement | yes | **yes** — front-end inverted, ~3 pts on 07-27, far more by 1pm 07-29 |
-| Premium collapses at 2:00pm | yes | **yes** — 5–7 vol points at the front |
-| Effect localised to short expiries | yes | **yes** — 688-day expiry moved 0.3 pts |
-| Size of the move | ±0.88% (forecast) | ±0.964% realized; event component ~1.05% |
-| Only one effect (the event) | yes | **no** — market-wide vol fell too, separable |
-| Statistically distinguishable from noise | hoped | **not established** — null band inconclusive, and absent at the front |
+| The crush (ATM pre vs post) | 07-29 1pm + 3pm | **2** |
+| Localization (front vs 2-year) | 07-29 1pm + 3pm | **2** |
+| Variance decomposition, event size | 07-29 1pm + 3pm | **2** |
+| The 1pm forecast | 07-29 1pm | **1** |
+| Superseded 3.1× ratio | 07-29 1pm + 07-28 | 2 |
+| Null band | all 13 v1 | 13 |
+| Forward-bias diagnosis | 13 v1 + 07-28 | 14 |
+| Expiry-ladder bug diagnosis | all 13 v1 | 13 |
+
+**The measurement rests on two snapshots taken two hours apart.** The thirteen
+earlier days produced the diagnostics — they are what exposed the ladder bug
+and established that the forward bias was persistent and decayed with maturity
+— plus the null band, which was inconclusive.
+
+That is not a failure of the collection. Without those thirteen days the two
+that mattered would have been uninterpretable: the ladder bug would not have
+been visible, and the forward bias would have looked like a one-off glitch
+rather than a systematic offset with a diagnosable signature.
+
+Note also that the v1 schema was **not** the constraint. `surface_io`
+reconstructs `expiry`, `strike`, `option_type` and `mid` exactly from v1 files;
+only `bid`/`ask`/`openInterest` are lost, and no analysis step uses them. All
+13 v1 snapshots load and calibrate normally. The constraints were the rotating
+ladder and the once-daily cadence.
 
 ---
 
-## 9. What now
+## 9. Expected vs actual
+
+| | expected | actual |
+|---|---|---|
+| Event premium exists pre-announcement | yes | **partly** — clear at 1pm on 07-29, but *not* consistently visible in the daily snapshots before that |
+| Premium collapses at 2:00pm | yes | **yes** — 5–7 vol points at the front |
+| Effect localised to short expiries | yes | **yes** — 688-day expiry moved 0.3 pts against a predicted 0.01 |
+| Size of the move | ±0.88% (forecast) | ±0.964% realized; event component **±0.95%** |
+| Only one effect (the event) | yes | **no** — market-wide vol fell too, separable |
+| Statistically distinguishable from noise | hoped | **not established** — null band inconclusive, and absent at the front |
+| Pre-event build-up trackable day by day | yes | **no** — ladder rotation and daily cadence prevent it |
+
+---
+
+## 10. What now
 
 - [ ] Keep collecting through early August — the term structure normalising
       over several days is part of the result.
 - [ ] README with the hypothesis, the charts, and the honest limitations.
 - [ ] Optional: SVI fits per smile; SPY vs a single name (NVDA).
+- [ ] **Intraday sampling at the next event.** Hourly through the session
+      would resolve the Tuesday-0.48% vs realized-0.95% inconsistency in
+      section 7, which once-daily data cannot. Higher value than more days.
 - [ ] Optional: repeat at the next FOMC meeting. Two events is not
       significance, but it is the only way this stops being n = 1.
 
