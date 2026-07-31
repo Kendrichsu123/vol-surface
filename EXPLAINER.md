@@ -697,6 +697,26 @@ turbulence premium is not. This is what C3 was groping toward with the label
 0.2–2.6 points against Wednesday's 5–8, confirming those wide gaps were the
 fast market rather than anything wrong with the pipeline.
 
+### Friday confirms it, and the term structure normalises
+
+One more day. The 21-day expiry went to **12.9%** — further *below* both
+Wednesday's post-announcement level and Tuesday's pre-announcement 15.1%. It
+never refilled.
+
+Friday also saw a broad volatility decline, but it splits cleanly from the
+event: applying the C3 skew test to that day's 0.76% rally leaves a residual
+under 0.1 points beyond 91 days, and about 1.3 points at 7 days. So the
+near-dated decline is real and the long-dated one is measurement — **the
+opposite maturity pattern to an event**, which is exactly why the two don't get
+confused.
+
+By Friday the term structure is textbook: 8.5% at three days rising smoothly
+to 20.7% at two years, with only the 0DTE elevated. Compare the inverted,
+humped shape of July 29 in B6.
+
+**The full arc: premium builds → collapses at 2:00pm → never returns → the
+curve is back to normal within two trading days.**
+
 ## C7 · FINDING — Which data produced which result
 
 | result | snapshots used | count |

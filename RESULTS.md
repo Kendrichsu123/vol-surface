@@ -151,9 +151,10 @@ has barely moved, and there is no overnight gap.
 
 ```
 07-30 15:00  ~2000 rows  14 expiries  spot 740.79   <- day after
+07-31 15:00  ~2000 rows  12 expiries  spot 746.44   <- term structure normalised
 ```
 
-**17 snapshots total** (13 v1 + 4 v2).
+**18 snapshots total** (13 v1 + 5 v2), July 9 through July 31.
 
 ### The forward bias — discovered July 28
 
@@ -509,6 +510,65 @@ than the regression in section 7.
 vol points against Wednesday's 5–8, confirming those wide gaps were the fast
 tape rather than anything systematic in the pipeline.
 
+### July 31 — the term structure fully normalises
+
+One more trading day closes the arc. SPY rose a further 0.76%.
+
+```
+expiry         days      Wed      Thu      Fri   Thu->Fri   wing gap Fri
+2026-08-07      7.0    15.4%    14.5%    11.9%     -2.56          0.9
+2026-08-14     14.0    14.7%    14.5%    12.5%     -1.96          0.5
+2026-08-21     21.0    14.4%    14.5%    12.9%     -1.51          0.4
+2026-09-30     61.0    14.9%    15.1%    14.3%     -0.81          1.3
+2026-10-30     91.0    15.7%    15.9%    15.2%     -0.67          0.8
+2027-06-30    334.0    18.6%    18.6%    18.4%     -0.20          0.0
+```
+
+**The event premium did not refill.** The 08-21 expiry — the cleanest signal
+in §7b — went to 12.9%, further *below* both Wednesday's post-announcement
+level and Tuesday's pre-announcement 15.1%. Two consecutive days now confirm
+the release was permanent.
+
+**Friday's broad decline is a separate effect, and it splits cleanly.**
+Applying the §7 skew-traversal test to the 0.76% spot move:
+
+```
+expiry         days  observed  skew explains   residual
+2026-08-07        7     -2.56          -1.22      -1.34
+2026-08-21       21     -1.51          -0.86      -0.65
+2026-10-30       91     -0.67          -0.59      -0.08
+2027-06-30      334     -0.20          -0.29      +0.09
+```
+
+At 91 days and beyond the residual is under 0.1 vol points — essentially all
+measurement effect. At 7 days there is a genuine ~1.3 point decline beyond what
+the spot move explains. That is the signature of a market calming after a
+turbulent week: near-dated volatility falls while two-year expectations barely
+move. Note this is the *opposite* maturity pattern to the event (§7b), which is
+why the two are distinguishable.
+
+**The term structure is back to a textbook shape:**
+
+```
+  3 days     8.5%
+  7 days    11.9%
+ 14 days    12.5%
+ 21 days    12.9%
+ 31 days    13.3%
+ 61 days    14.3%
+ 91 days    15.2%
+334 days    18.4%
+686 days    20.7%
+```
+
+Smooth and upward-sloping from three days out to two years, with only the 0DTE
+elevated (23.6%, normal for an option with hours to live). Compare the
+inverted, humped front end of July 29 in §5. Wing gaps of 0.0–1.6 are the
+tightest in the dataset.
+
+**Full arc:** premium builds into the announcement → collapses at 2:00pm →
+does not return → term structure normalises within two trading days.
+
 ### A cleaner estimator found late
 
 Tuesday 3pm and Wednesday 3pm had nearly identical spot (741.49 vs 742.02,
@@ -578,8 +638,8 @@ ladder and the once-daily cadence.
 ## 10. What now
 
 - [x] Keep collecting through early August — the term structure normalising
-      over several days is part of the result. **July 30 confirms the crush
-      held; see section 7b.**
+      over several days is part of the result. **July 30 and 31 confirm the
+      crush held and the term structure fully normalised; see section 7b.**
 - [ ] README with the hypothesis, the charts, and the honest limitations.
 - [ ] Optional: SVI fits per smile; SPY vs a single name (NVDA).
 - [ ] **Intraday sampling at the next event.** Hourly through the session
