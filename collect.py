@@ -20,13 +20,26 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--label", default=None,
                     help="filename suffix, e.g. 'pre' or 'post'")
 parser.add_argument("--force", action="store_true",
-                    help="run even on a weekend")
+                    help="run even on a weekend or outside market hours")
 args = parser.parse_args()
 
 now = datetime.now(tz=ET)
 
 if now.weekday() >= 5 and not args.force:   # 5 = Saturday, 6 = Sunday
     print("Weekend — market closed, skipping.")
+    raise SystemExit(0)
+
+# Refuse to run outside market hours. launchd re-runs a missed job once on
+# wake, so a laptop opened at 8pm would otherwise fire this and write stale
+# after-hours quotes into the archive under that day's date. A missing day
+# costs one observation; a wrong-time day quietly corrupts the series.
+MARKET_OPEN, MARKET_CLOSE = (9, 45), (15, 59)
+hm = (now.hour, now.minute)
+if not (MARKET_OPEN <= hm <= MARKET_CLOSE) and not args.force:
+    print(f"{now.strftime('%H:%M %Z')} is outside market hours "
+          f"({MARKET_OPEN[0]:02d}:{MARKET_OPEN[1]:02d}-"
+          f"{MARKET_CLOSE[0]:02d}:{MARKET_CLOSE[1]:02d} ET) — skipping. "
+          f"Use --force to override.")
     raise SystemExit(0)
 
 spy = yf.Ticker("SPY")
