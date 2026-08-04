@@ -45,12 +45,13 @@ data.py — the library: smile_for_expiry, build_surface,
 save_daily_surface. Plus a __main__ block that draws the 3D surface +
 heatmap when run directly (python data.py).
 collect.py — the daily job: imports from data.py, saves a dated snapshot.
-data/ — dated snapshot archive (gitignored), one CSV per day.
+data/ — dated snapshot archive, one CSV per day. Committed: option chains
+cannot be re-queried historically, so every snapshot is a one-shot record.
 
 
-The if __name__ == "__main__": guard is what lets data.py be BOTH an
-importable library AND a runnable script — plotting only fires when run
-directly, not when collect.py imports it.
+data.py is both an importable library and a runnable script: the plotting
+lives behind a __main__ guard, so it fires when you run the file directly and
+stays quiet when collect.py imports it.
 
 
 Key decisions
@@ -64,8 +65,10 @@ Assumptions: r = 0.045 (T-bill), q = 0.012 (SPY div yield).
 Log-moneyness ln(K/S) instead of raw strike for the surface — normalizes
 expiries so their smiles are comparable (a 700 strike is deep OTM for a
 1-week option but near-ATM for a 1-year option).
-Expiry sampling spy.options[:40:3] — every 3rd expiry out to the 40th,
-to span days-to-years instead of clustering in the near-dated dailies.
+Expiry sampling — originally spy.options[:40:3], every 3rd expiry out to
+the 40th. SUPERSEDED on 2026-07-27: selecting by list position rotates the
+ladder as contracts expire. Now selected by target date offset; see the
+collector rewrite below.
 Snapshot time: ~3pm ET daily. Consistency matters more than the exact
 hour — IV drifts intraday, so a fixed time controls for that drift. 3pm is
 during market hours (tight spreads, live quotes) vs. the messier close bell.
@@ -77,8 +80,6 @@ Things I learned / bugs I hit
 brentq needs f(a), f(b) opposite signs; the "different signs" error means a
 bad quote with no valid IV (price violates arbitrage bounds) -> filter it out.
 So that error is really brentq doing data-quality checking for me.
-git: add -> commit -> push. Commit alone doesn't publish. git add stages,
-git commit checkpoints locally, git push publishes to GitHub.
 Silent copy-paste bug: had puts["bid"] + calls["ask"] for the put mid —
 ran fine, just wrong. Caught it via the yfinance IV benchmark. Lesson: silent
 bugs are why benchmarking against an independent source matters.
@@ -88,9 +89,6 @@ function that computes T should refuse a non-positive T, not trust the caller.
 expiries so they all landed within 3 weeks. Had to step with [:40:3].
 yfinance is flaky — "possibly delisted; no price data" usually means
 rate-limited, not delisted. Wait and retry. Guard empty returns explicitly.
-The __main__ guard is the line between "importable library" and "runnable
-script." Un-guarded code runs on import — which would pop plots when
-collect.py imports data.py.
 
 
 
@@ -135,7 +133,7 @@ DAILY COLLECTION INSTRUCTIONS
 
 Run every trading day (~3pm ET), from the vol-surface folder:
 
-bashsource venv/bin/activate      # if (venv) not already showing
+source venv/bin/activate      # if (venv) not already showing
 python collect.py
 
 Expect: Saved ~1700 rows to data/surface_YYYY-MM-DD.csv and NO plot windows.
