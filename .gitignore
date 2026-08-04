@@ -3,3 +3,4 @@ __pycache__/
 collect.log
 launchd.log
 launchd.err
+.DS_Store
