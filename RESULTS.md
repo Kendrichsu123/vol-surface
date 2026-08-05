@@ -97,10 +97,7 @@ days ÷ 365.
 roll off the front the list shifts, so the every-third stride lands on a
 different set of dates each day.
 
-Measured across the 13 snapshots: **41 distinct expiries, and no single expiry
-present in more than 6 of them.** The `2026-07-31` expiry — a natural one to
-track through the event — was absent from the entire final run-up week
-(07-21 through 07-27).
+Measured across the 13 snapshots: 41 distinct expiries, and no single expiry present in more than 7 of them. The 2026-07-31 expiry — a natural one to track through the event — appears in only 6, and is missing from four of the five sessions in the final run-up week (present 07-23 only, absent 07-21, 07-22, 07-24, 07-27).
 
 This would have made "track one contract's IV as it rises into the event and
 collapses after" impossible. Fixed by selecting the nearest listed expiry to a
