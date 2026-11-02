@@ -329,6 +329,22 @@ if __name__ == "__main__":
                   f"b = {b_s:+.5f}   R2 = {r2_s:.3f}")
         print("  (long expiries carry heavy leverage on the intercept; the")
         print("   short-dated fit and the direct reads below are more reliable)")
+
+        # The headline estimate (RESULTS.md section 7): refit using only expiries
+        # whose forward calibrated in BOTH snapshots, so no wing-averaged ATM
+        # reading enters the fit.
+        both = d[d.calibrated_pre & d.calibrated_post]
+        print("\n  calibrated in both snapshots only:")
+        for cap, lbl in [(30, "<=30d"), (60, "<=60d"), (np.inf, "all  ")]:
+            s = both[both.days_pre <= cap]
+            if len(s) < 3:
+                continue
+            A = np.vstack([np.ones(len(s)), s.T_pre]).T
+            (a_c, b_c), *_ = np.linalg.lstsq(A, s.dV, rcond=None)
+            r2_c = 1 - ((s.dV - A @ [a_c, b_c]) ** 2).sum() / ((s.dV - s.dV.mean()) ** 2).sum()
+            tag = "   <- headline" if cap == 30 else ""
+            print(f"  calibrated, {lbl}  n={len(s):2d}  a = {a_c:.3e} -> "
+                  f"{np.sqrt(max(a_c, 0))*100:.2f}%   R2 = {r2_c:.3f}{tag}")
         front = d[d.days_pre < 15]
         if len(front):
             print(f"  front-only (<15d) mean dV = {front.dV.mean():.3e} "
