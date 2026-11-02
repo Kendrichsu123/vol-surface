@@ -186,9 +186,9 @@ COLLECTOR REWRITE (2026-07-27) — what changed and why
 The old spy.options[:40:3] selected by POSITION. As expiries roll off the
 front the list shifts, so the every-3rd stride lands on different dates each
 day. Measured across the first 13 snapshots: 41 distinct expiries sampled, and
-no single expiry present in more than 6 of the 13. The 2026-07-31 expiry — a
-natural one to track through the event — is missing from the entire final
-run-up week (07-21 through 07-27).
+no single expiry present in more than 7 of the 13. The 2026-07-31 expiry — a
+natural one to track through the event — appears in only 6, and is missing
+from four of the five sessions in the final run-up week (present 07-23 only).
 
 Now: nearest listed expiry to each of [1, 3, 7, 14, 30, 60, 90, 180, 365, 730]
 days, unioned with an ALWAYS_INCLUDE list of the FOMC-bracketing expiries.

@@ -1,5 +1,7 @@
 # SPY Implied Volatility Surface — pricing a scheduled event
 
+[![tests](https://github.com/Kendrichsu123/vol-surface/actions/workflows/tests.yml/badge.svg)](https://github.com/Kendrichsu123/vol-surface/actions/workflows/tests.yml)
+
 A Black-Scholes pricer and implied-volatility solver written from scratch, an
 automated pipeline that reconstructs SPY's full volatility surface from live
 option chains each trading day, and a measurement of what the options market
@@ -93,7 +95,7 @@ Five things worth knowing about the design:
 **The expiry ladder was rotating.** Expiries were selected by *position* in a
 list. As contracts expired the list shifted, so a different set was tracked
 each day — **41 distinct expiries across 13 snapshots, none appearing in more
-than 6.** Found two days before the event; any later and the measurement would
+than 7.** Found two days before the event; any later and the measurement would
 have been unusable.
 
 **The spot and option feeds disagreed.** A put and a call one strike apart
@@ -139,12 +141,12 @@ confirmed it, since a real market feature wouldn't fade that way.
 ## Running it
 
 ```bash
-pip install yfinance pandas numpy scipy matplotlib
+pip install -r requirements.txt
 
 python main.py              # pricer tests
 python test_surface_io.py   # loader tests
-python collect.py           # one snapshot -> data/
-python analysis.py          # full analysis + charts (~4 min)
+python analysis.py          # full analysis + charts (~4 min), from the committed snapshots
+python collect.py           # take a new live snapshot -> data/ (market hours only)
 ```
 
 ---

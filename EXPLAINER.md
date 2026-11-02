@@ -256,8 +256,8 @@ old options expire, the list shifts, so "every third one" lands on different
 dates each day.
 
 **Measured: 41 different expiries across 13 days, and no single expiry
-appearing in more than 6 of them.** The July 31 expiry — an obvious one to
-track through the event — was missing from the entire final week.
+appearing in more than 7 of them.** The July 31 expiry — an obvious one to
+track through the event — showed up on only one day of the final week.
 
 *Analogy:* trying to time one song when your stopwatch only records at random
 5-minute intervals. The song is in there, mixed with everything around it.
